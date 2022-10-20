@@ -49,6 +49,8 @@ gcloud projects add-iam-policy-binding PROJECT_ID \
     --role="roles/compute.admin"
 ```
 
+Create a new service account key for use below via the gui. TODO: get cli instructions for this.
+
 If you didn't already specify a pre-existing Service Account for the GKE nodes, you can create one like this,
 then update the parameter `cluster_service_account_name` in `cluster/params.yaml`:
 
@@ -64,7 +66,7 @@ The deployment pipeline can automatically deploy and update the cluster once the
 1. Add a mongodb connection string variable for porter to maintain state between runs:
    * GitLab: Settings -> CI/CD -> Variables -> Add key **PORTER_MONGO_CONNECTION_STRING** and value (your string e.g. mongodb+srv://USER_HERE:PASSWORD_HERE@YOUR_HOST/?retryWrites=true&w=majority)
 2. Add the BASE64 encoded copy of your deployer service account key:
-   * GitLab: Settings -> CI/CD -> Variables -> Add key **BASE64_GOOGLE_CREDENTIALS** and value (cat YOUR_GLOUD_KEY | base64 -w0)
+   * GitLab: Settings -> CI/CD -> Variables -> Add key **BASE64_GOOGLE_CREDENTIALS** and value (cat YOUR_DEPLOYER_GLOUD_KEY_FROM_ABOVE | base64 -w0)
 3. Add the OIDC Client Secret if you're using an external IDP:
    * GitLab: Settings -> CI/CD -> Variables -> Add key **OIDC_CLIENT_SECRET** and value. Leve this out for local auth via dex.
 
@@ -143,6 +145,10 @@ The sealed secret can then be applied to the cluster using `kubectl create names
 ## Deploy Code To The Cluster
 
 ### With AutoDevops
+
+> Note: Auto-devops applies k8s ingeress firewall rules that will interfere with the sandbox-cluster deletion. Remove them
+> via the gui before setting the cluster uninstaller to true. TODO: Figure out how to do this gracefully.
+
 Add the autodevops template to your `.gitlab-ci.yml` file under the `include` key, e.g.:
 
 ```yaml
@@ -162,6 +168,8 @@ KUBE_INGRESS_BASE_DOMAIN = same as cluster domain... You'll also need a DNS reco
 KUBE_NAMESPACE = whatever namespace name you want to deploy into.
 
 Add some code.
+
+#TODO: integrate with the cluster prometheus
 
 ### Use With ArgoCd
 TODO
