@@ -95,6 +95,17 @@ The actual application install can take an additional 10-20 minutes, and you can
 documentation to ensure the deployment rolls out. Note: You'll need to add the Gitlab Agent token (see the next section) before
 the gitlab-agent app will enter the Healthy state.
 
+Once everything is up and running you can browse to:
+
+* grafana.your_cluster_domain
+* argocd.your_cluster_domain
+
+Login credentials for Dex local auth (admin@example.com) can be found with:
+
+```text
+kubectl get secret -n oauth-proxy oauth-proxy-creds -o jsonpath="{.data.admin-password}" | base64 -d; echo
+```
+
 ## Authenticate The Cluster With GitLab
 In Gitlab, go to Infrastructure -> Kubernetes Cluster -> Connect a cluster, then select or create an agent token.
 
@@ -132,7 +143,25 @@ The sealed secret can then be applied to the cluster using `kubectl create names
 ## Deploy Code To The Cluster
 
 ### With AutoDevops
-TODO
+Add the autodevops template to your `.gitlab-ci.yml` file under the `include` key, e.g.:
+
+```yaml
+include:
+  - template: Auto-DevOps.gitlab-ci.yml      # Add this line
+  - local: /.gitlab-ci/sandbox_actions.yml
+    rules:
+      - if: $UPDATE_CLUSTER == "true"
+```
+
+Add the following variables to your Gitlab Pipeline Config:
+
+#TODO: Make this suck less
+
+KUBE_CONTEXT = your gitlab org and repo name + the name of your gitlab agent... e.g. f5/greenhouse/my-cool-repo:my-cool-gitlab-agent
+KUBE_INGRESS_BASE_DOMAIN = same as cluster domain... You'll also need a DNS record for your-repo-name.your_cluseter_domain.
+KUBE_NAMESPACE = whatever namespace name you want to deploy into.
+
+Add some code.
 
 ### Use With ArgoCd
 TODO
