@@ -30,9 +30,46 @@ cp ./.porter/config.toml ~/.porter/config.toml
 * run porter credentials apply cluster/creds.yaml
 * run porter installation apply cluster/installation.yaml --force
 
+## Verify the Cluster
+Connect to the cluster using the gcloud connection string
+
+Follow the [Verification](https://clhain.github.io/sandbox/installation/quick-start/#verification) section of the sandbox
+documentation to ensure the deployment rolls out. You'll need to add the Gitlab Agent token (see the next section) before
+the gitlab-agent app will enter the Healthy state.
+
 ## Authenticate The Cluster With GitLab
 In Gitlab, go to Infrastructure -> Kubernetes Cluster -> Connect a cluster, then select or create an agent token.
 
+### Regular Secrets With Kubectl
+You can create the requisite secret and (optionally namespace if the ArgoCD Installation is still running) via the command line:
+
+```text
+kubectl create namespace gitlab-agent
+kubectl create -n gitlab-agent secret generic gitlab-agent-token --from-literal=token=YOUR_GITLAB_AGENT_TOKEN
+```
+
+### With Sealed Secrets
+Alternatively, you can use the cluster's instance of [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) to generate
+an encrypted version of the secret that will only work with this cluster and is safe to commit to your code repo:
+
+Create a file e.g. /tmp/my_raw_secret.yaml, and add your token:
+```yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: gitlab-agent-token
+  namespace: gitlab-agent
+stringData:
+  token: YOUR_TOKEN
+```
+
+Then use the cluster sealed secrets to encrypt:
+```text
+kubectl apply -f /tmp/my_raw_secret.yaml --dry-run -o json | kubeseal --controller-name sealed-secrets --controller-namespace sealed-secrets | yq -P '.' > my-sealed-secret.yaml
+```
+
+The sealed secret can then be applied to the cluster using `kubectl create namespace gitlab-agent && kubectl apply -f my-sealed-secret.yaml`.
 
 ## Deploy Code To The Cluster
 
@@ -42,3 +79,9 @@ Once the cluster is initialized, you can authorize it for use with auto-devops.
 ### Use With ArgoCd
 
 trigger porter install / upgrade
+
+
+### Uninstall The Cluster
+To remove the cluster, update the cluster/installation.yaml to include `uninstalled: true`, 
+then re-run the Gitlab pipeline or Porter installation command as in the Deployment section. The
+cluster and all related resources will be destroyed.
