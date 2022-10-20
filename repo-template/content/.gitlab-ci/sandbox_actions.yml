@@ -1,5 +1,5 @@
 variables:
-  PORTER_MONGO_CONNECTION_STRING: FROM_ENV (e.g "clhain:password@cluster0.m0okhr6.mongodb.net/myFirstDatabase")
+  PORTER_MONGO_CONNECTION_STRING: FROM_ENV
   PORTER_VERSION: "v1.0.1"
   DOCKER_DRIVER: overlay2
 
