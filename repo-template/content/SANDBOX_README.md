@@ -65,8 +65,8 @@ The deployment pipeline can automatically deploy and update the cluster once the
    * GitLab: Settings -> CI/CD -> Variables -> Add key **PORTER_MONGO_CONNECTION_STRING** and value (your string e.g. mongodb+srv://USER_HERE:PASSWORD_HERE@YOUR_HOST/?retryWrites=true&w=majority)
 2. Add the BASE64 encoded copy of your deployer service account key:
    * GitLab: Settings -> CI/CD -> Variables -> Add key **BASE64_GOOGLE_CREDENTIALS** and value (cat YOUR_GLOUD_KEY | base64 -w0)
-3. Add the OIDC Client Secret (or empty string)
-   * GitLab: Settings -> CI/CD -> Variables -> Add key **OIDC_CLIENT_SECRET** and value (your client secret or "")
+3. Add the OIDC Client Secret if you're using an external IDP:
+   * GitLab: Settings -> CI/CD -> Variables -> Add key **OIDC_CLIENT_SECRET** and value. Leve this out for local auth via dex.
 
 Manually trigger the pipeline, and [set the gitlab variable](https://docs.gitlab.com/ee/ci/variables/#override-a-variable-when-running-a-pipeline-manually)
 **"UPDATE_CLUSTER"** to **"true"** from CI/CD -> Pipelines -> Run Pipeline.
@@ -87,10 +87,12 @@ cp ./.porter/config.toml ~/.porter/config.toml
 * run porter installation apply cluster/installation.yaml --force
 
 ## Verify the Cluster Installation
-[Connect to the cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl) using the gcloud connection string from the gcloud portal.
+After the pipeline completes, [Connect to the cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
+using the gcloud connection string from the gcloud portal.
 
-Follow the [Verification](https://clhain.github.io/sandbox/installation/quick-start/#verification) section of the sandbox
-documentation to ensure the deployment rolls out. You'll need to add the Gitlab Agent token (see the next section) before
+The actual application install can take an additional 10-20 minutes, and you can follow along via the 
+[Verification](https://clhain.github.io/sandbox/installation/quick-start/#verification) section of the sandbox
+documentation to ensure the deployment rolls out. Note: You'll need to add the Gitlab Agent token (see the next section) before
 the gitlab-agent app will enter the Healthy state.
 
 ## Authenticate The Cluster With GitLab
@@ -130,11 +132,10 @@ The sealed secret can then be applied to the cluster using `kubectl create names
 ## Deploy Code To The Cluster
 
 ### With AutoDevops
-Once the cluster is initialized, you can authorize it for use with auto-devops.
+TODO
 
 ### Use With ArgoCd
-
-trigger porter install / upgrade
+TODO
 
 
 ### Uninstall The Cluster

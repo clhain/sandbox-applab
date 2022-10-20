@@ -2,6 +2,7 @@ variables:
   PORTER_MONGO_CONNECTION_STRING: FROM_ENV
   PORTER_VERSION: "v1.0.1"
   DOCKER_DRIVER: overlay2
+  OIDC_CLIENT_SECRET: ""
 
 update_cluster:
   image: docker:20.10
