@@ -15,7 +15,48 @@ and eventually e.g. the Threatstack agent or other specific Greenhouse requireme
 ## Deploy The Cluster
 The cluster can be deployed either using the Gitlab Runner, or via the porter CLI. If you use the runner, you should
 supply mongodb connection information in order for your state files to be maintained between jobs. If you use the
-local porter cli, you can skip the mongo creds but you won't be able to collaborate with other users. 
+local porter cli, you can skip the mongo creds but you won't be able to collaborate with other users.
+
+These instructions are for a modified version of the [All In One (GKE) Sandbox Deployment](https://clhain.github.io/sandbox/installation/all-in-one-gke/).
+More detailed instructions can be found at that link, with Applab specific modifications here.
+
+### Create A Deployer Service Account Key
+Example account creation and permission commands (must be run by a user with permissions to create service accounts):
+
+```text
+gcloud iam service-accounts create deployer-sa \
+    --description="Service Account Used with Porter to deploy GCP assets" \
+    --display-name="Porter Deploy Service Account"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+    --member="serviceAccount:deployer-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountUser"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+    --member="serviceAccount:deployer-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/container.admin"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+    --member="serviceAccount:deployer-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/container.clusterAdmin"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+    --member="serviceAccount:deployer-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/compute.networkAdmin"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+    --member="serviceAccount:deployer-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/compute.admin"
+```
+
+If you didn't already specify a pre-existing Service Account for the GKE nodes, you can create one like this,
+then update the parameter `cluster_service_account_name` in `cluster/params.yaml`:
+
+```text
+gcloud iam service-accounts create sandbox-cluster-node-sa \
+    --description="Service Account For GKE Cluster Nodes" \
+    --display-name="Cluster Node Service Account"
+```
 
 ### Using GitLab Runner
 The deployment pipeline can automatically deploy and update the cluster once the following variables are set:
