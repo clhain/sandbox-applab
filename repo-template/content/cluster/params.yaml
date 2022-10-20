@@ -1,0 +1,45 @@
+schemaVersion: 1.0.1
+name: ${{ values.name }}-cluster
+parameters:
+  - name: cluster_name
+    source:
+      value:  ${{ values.name }}
+  - name: enable_confidential_nodes
+    source:
+      value: "true"
+  - name: cluster_domain
+    source:
+      value: ${{ values.cluster_domain }}
+  - name: project
+    source:
+      value: ${{ values.project }}
+  - name: oidc_permitted_email_domains
+    source:
+      value: ${{ values.oidc_permitted_email_domains }}
+  - name: oidc_client_id
+    source:
+      value: ${{ values.oidc_client_id }}
+  - name: oidc_issuer_url
+    source:
+      value: ${{ values.oidc_issuer_url }}
+  - name: letsencrypt_contact_email
+    source:
+      value: ${{ values.letsencrypt_contact_email }}
+  - name: create_service_account
+    source:
+      value: "false"
+  - name: cluster_service_account_name
+    source:
+      value: ${{ values.cluster_service_account_name }}
+  - name: enable_network_policy
+    source:
+      value: "true"
+  - name: enable_confidential_nodes
+    source:
+      value: "true"
+  - name: machine_type
+    source:
+      value: n2d-standard-2
+  - name: sandbox-values
+    source:
+      path: ./cluster/sandbox-values.yaml

@@ -1,0 +1,9 @@
+schemaVersion: 1.0.2
+name:  ${{ values.name }}-cluster
+bundle:
+  repository: ghcr.io/clhain/sandbox-gke-porter
+  version: v0.1.6
+parameterSets:
+  -  ${{ values.name }}-cluster
+credentialSets:
+  -  ${{ values.name }}-cluster

@@ -1,0 +1,115 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
+kind: Template
+metadata:
+  name: f5-sandbox-cluster-template
+  title: F5 Sandbox Template (GCP)
+  description: Template deployment for F5 Sandbox Cluster in GCP
+spec:
+  owner: group:applab
+  type: resource
+
+  # These parameters are used to generate the input form in the frontend, and are
+  # used to gather input data for the execution of the template.
+  parameters:
+    - title: Required Parameters
+      required:
+        - name
+        - project
+        - letsencrypt_contact_email
+      properties:
+        name:
+          title: Name
+          type: string
+          description: Unique name for the cluster and related resources
+          default: 'my-sandbox'
+          ui:autofocus: true
+        project:
+          title: Cluster GCP Project
+          type: string
+          description: The gcp project name to deploy to (e.g. f5-gcs-your-project-dev)
+        letsencrypt_contact_email:
+          title: Let's Encyrpt Contact Email
+          type: string
+          description: The Email address to use as contact with Let's Encrypt.
+        cluster_service_account_name:
+          title: Cluster Node Service Account
+          type: string
+          description: The name of the non-privileged GCP Service Account to use for cluster nodes. (TODO link to doc)
+    - title: Optional Parameters
+      properties:
+        cluster_domain:
+          title: Cluster DNS Domain
+          type: string
+          description: The domain to assign cluster resources to.
+          default: ''
+        oidc_client_id:
+          title: OIDC Integration Client ID
+          type: string
+          description: The OIDC Client ID to authenticate with (set to blank for local dex auth.)
+          default: ''
+        oidc_permitted_email_domains:
+          title: OIDC Permitted Email Domains
+          type: string
+          description: The Email domains that are allowed to authenticate. (set to example.com for local dex auth.)
+          default: 'example.com'
+        oidc_issuer_url:
+          title: OIDC Issuer URL
+          type: string
+          description: The OIDC Issuer URL to use (set to blank for local dex auth.)
+          default: ''
+
+
+    - title: Destination Repo
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            # Here's the option you can pass to the RepoUrlPicker
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+              additionalScopes:
+                github:
+                  - workflow
+            allowedHosts:
+              - github.com
+              - gitlab.com
+
+  # These steps are executed in the scaffolder backend, using data that we gathered
+  # via the parameters above.
+  steps:
+    # Each step executes an action, in this case one templates files into the working directory.
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: https://github.com/clhain/sandbox-applab/tree/master/repo-template/content
+        values:
+          name: ${{ parameters.name }}
+          project: ${{ parameters.project }}
+          letsencrypt_contact_email: ${{ parameters.letsencrypt_contact_email }}
+          cluster_service_account_name: ${{ parameters.cluster_service_account_name }}
+          cluster_domain: ${{ parameters.cluster_domain }}
+          oidc_client_id: ${{ parameters.oidc_client_id }}
+          oidc_permitted_email_domains: ${{ parameters.oidc_permitted_email_domains }}
+          oidc_issuer_url: ${{ parameters.oidc_issuer_url }}
+
+    # This step publishes the contents of the working directory to GitHub.
+    - id: publish
+      name: Publish
+      action: publish:gitlab
+      input:
+        allowedHosts: ['gitlab.com']
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+
+  # Outputs are displayed to the user after a successful execution of the template.
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}

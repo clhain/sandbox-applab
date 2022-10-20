@@ -1,0 +1,10 @@
+include:
+  - local: /.gitlab-ci/sandbox_actions.yml
+    rules:
+      - if: $UPDATE_CLUSTER == "true"
+
+variables:
+  UPDATE_CLUSTER: "false"
+
+job:
+  script: "echo 'replace me with something useful'"

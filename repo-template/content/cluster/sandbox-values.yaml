@@ -1,0 +1,18 @@
+# These overrides specify Applab specific settings. You generally shouldn't need to modify these.
+paramOverrides:
+  apps.gitlab-agent.enabled: true                                                 # Enable a new service named gitlab-agent
+  apps.gitlab-agent.source.path: applab-services/gitlab-agent                     # Set the path to the helm charts to use for the new gitlab-agent installation
+  apps.gitlab-agent.source.repoURL: https://github.com/clhain/sandbox-applab.git  # Set the repo containing the helm charts to use for the new gitlab-agent installation
+  apps.gitlab-agent.source.targetRevision: HEAD                                   # Set the branch / revision of the repo to use for the new gitlab-agent installation
+  apps.gitlab-agent.destination.namespace: gitlab-agent                           # Specify the k8s namespace where the new installation will be placed
+  apps.gitlab-agent.syncWave: "11"                                                # Specify the order in which the gitlab-agent install will be performed.
+  ### Add your own custom sandbox base apps / mods here (this example replaces tempo with jaeger, see Sandbox cluster docs)
+  # apps.tempo.enabled: false            # Disable the default temp installation
+  # apps.jaeger.enabled: true            # Enable a new installation named jaeger
+  # apps.jaeger.source.path: examples/override-cluster-service/jaeger           # Set the path to the helm charts to use for the new jaeger installation
+  # apps.jaeger.source.repoURL: https://github.com/clhain/sandbox.git  # Set the repo containing the helm charts to use for the new jaeger installation
+  # apps.jaeger.source.targetRevision: HEAD                            # Set the branch / revision of the repo to use for the new jaeger installation
+  # apps.jaeger.source.helm.params.clusterDomain: ### YOUR CLUSTER DOMAIN HERE   # Set the domain to place the new jaeger.<your_domain> ingress under.
+  # apps.jaeger.destination.namespace: jaeger                          # Specify the k8s namespace where the new installation will be placed
+  # apps.jaeger.syncWave: "3"                                          # Specify the order in which the jaeger install will be performed.
+  # apps.opentelemetry-operator.source.helm.params.enableDeployment: false  # Disable deployment of the default Otel Collector so we can override the config.

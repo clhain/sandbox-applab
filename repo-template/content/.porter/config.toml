@@ -1,0 +1,17 @@
+default-storage = "devdb"
+# Defines storage accounts
+[[storage]]
+  # The storage account name
+  name = "devdb"
+
+  # The plugin used to access the storage account
+  plugin = "mongodb"
+
+  # Additional configuration for storage account
+  # These values vary depending on the plugin used
+  [storage.config]
+    # The mongodb connection string
+    url = "mongodb://${env.PORTER_MONGO_CONNECTION_STRING}"
+    
+    # Timeout for database queries
+    timeout = 300

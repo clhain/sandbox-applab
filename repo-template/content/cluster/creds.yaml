@@ -1,0 +1,9 @@
+schemaVersion: 1.0.1
+name:  ${{ values.name }}-cluster
+credentials:
+  - name: gcloud_key_file
+    source:
+      path: /tmp/gcloud.key
+  - name: oidc_client_secret
+    source:
+      env: OIDC_CLIENT_SECRET

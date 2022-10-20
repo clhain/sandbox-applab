@@ -1,0 +1,24 @@
+variables:
+  PORTER_MONGO_CONNECTION_STRING: FROM_ENV (e.g "clhain:password@cluster0.m0okhr6.mongodb.net/myFirstDatabase")
+  PORTER_VERSION: "v1.0.1"
+  DOCKER_DRIVER: overlay2
+
+update_cluster:
+  image: docker:20.10
+  services:
+    - docker:dind
+  before_script:
+    - apk update && apk --no-cache add curl bash
+    - curl -L https://cdn.porter.sh/$PORTER_VERSION/install-linux.sh | bash
+    - export PATH=$PATH:~/.porter
+    - cp .porter/config.toml ~/.porter/config.toml
+    - echo -n $BASE64_GOOGLE_CREDENTIALS | base64 -d > /tmp/gcloud.key
+  script:
+    - which porter
+    - porter version
+    - porter installations list
+    - porter parameters list
+    - porter credentials list
+    - porter parameters apply cluster/params.yaml
+    - porter credentials apply cluster/creds.yaml
+    - porter installation apply cluster/installation.yaml --force
